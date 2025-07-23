@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:17.5-bookworm
+    container_name: DB_SBS-Stock
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: DB_SBS-Stock
+      POSTGRES_USER: admindb
+      POSTGRES_PASSWORD: admindb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+
+

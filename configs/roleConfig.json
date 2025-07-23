@@ -1,0 +1,13 @@
+{
+  "profissoes": {
+    "admin": 0,
+    "manager": 1,
+    "technician": 2
+  },
+  "permissoes": {
+    "1": "entrada",
+    "2": "nf",
+    "3": "movimentacao",
+    "4": "ilegalidades"
+  }
+}
