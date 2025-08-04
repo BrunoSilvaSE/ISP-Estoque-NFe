@@ -18,7 +18,7 @@ func NewTypeHandler(typeService *services.TypeService) *TypeHandler {
 	return &TypeHandler{typeService: typeService}
 }
 
-// GET
+//	GET
 func (h *TypeHandler) ShowAllTypesHandler(c *gin.Context) {
 
 	typ, err := h.typeService.SelectAllTypes(c)
@@ -46,7 +46,7 @@ func (h *TypeHandler) ShowTypeByModel(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// POST
+//	POST
 func (h *TypeHandler) CreatTypeHandler(c *gin.Context){
 	var typ models.Type
 
@@ -67,4 +67,19 @@ func (h *TypeHandler) CreatTypeHandler(c *gin.Context){
 	c.JSON(http.StatusCreated, gin.H{
 		"mensagem": "Novo tipo de equipamento criado com sucesso",
 	})
+}
+
+//	PUT
+func (h *TypeHandler) TypeActivateStatusChangerByCpfHandler(c *gin.Context){
+	model := c.Param("model")
+
+	err := h.typeService.ChangeTypeStatusByModel(c, model)
+	if err != nil {
+		err = fmt.Errorf("erro ao alterar tipo de equipamento.\n%w", err)
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"erro": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"mensagem": "Status do usuário alterado com sucesso"})
 }

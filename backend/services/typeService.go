@@ -17,7 +17,7 @@ func NewTypeService(typeRepository *repositories.TypeRepository) *TypeService {
 	return &TypeService{TypeRepository: typeRepository}
 }
 
-// GET
+//	GET
 func (s *TypeService) SelectAllTypes(c *gin.Context) (*[]models.Type, error) {
 	return s.TypeRepository.FindAllTypes(c)
 }
@@ -43,4 +43,25 @@ func (s *TypeService) NewTypeRegister(c *gin.Context, typ *models.Type) error {
 	}
 
 	return nil
+}
+
+//	PUT
+func (s *TypeService) ChangeTypeStatusByModel(c *gin.Context, model string) error {
+	var newStatus bool
+
+	model = strings.ToUpper(model)
+
+	typ, err := s.TypeRepository.FindTypeByModel(c, model)
+	if err != nil {
+		return fmt.Errorf("erro ao buscar tipo de equipamento modelo %s.\n%w", model, err)
+	}
+
+	newStatus = !typ.Ativo
+
+	err = s.TypeRepository.TypeStatusAlterByID(c, newStatus, typ.ID)
+	if err != nil {
+		return fmt.Errorf("erro ao tentar atualizar o status de ativo do modelo %s\n%w", model, err)
+	}
+
+	return err
 }

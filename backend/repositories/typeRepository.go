@@ -96,3 +96,24 @@ func (r *TypeRepository) InsertNewType(c *gin.Context, typ *models.Type) error {
 	
 	return err
 }
+
+//	PUT
+func (r *TypeRepository) TypeStatusAlterByID(c *gin.Context, newStatus bool, id int) error {
+	query := `UPDATE "type" SET ativo = $1 WHERE id = $2`
+	ctx := c.Request.Context()
+
+	res, err := r.db.DB.ExecContext(ctx, query, newStatus, id)
+	if err != nil {
+		return fmt.Errorf("erro on ExecContext: %w", err)
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("falha ao verificar linhas afetadas após atualização de status: %w", err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("tipo de equipamento com ID %d não encontrado para atualização de status", id)
+	}
+
+	return err
+}
