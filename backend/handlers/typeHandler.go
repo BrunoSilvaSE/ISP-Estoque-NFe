@@ -32,6 +32,20 @@ func (h *TypeHandler) ShowAllTypesHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, typ)
 }
 
+func (h *TypeHandler) ShowTypeByModel(c *gin.Context) {
+	model := c.Param("model")
+
+	user, err := h.typeService.SelectTypeByModel(c, model)
+	if err != nil {
+		err = fmt.Errorf("erro ao buscar usuários.\n%w", err)
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"erro": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
+}
+
 // POST
 func (h *TypeHandler) CreatTypeHandler(c *gin.Context){
 	var typ models.Type

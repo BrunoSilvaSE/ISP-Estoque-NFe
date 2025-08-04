@@ -47,6 +47,33 @@ func (r *TypeRepository) FindAllTypes(c *gin.Context) (*[]models.Type, error) {
 	return &typ, nil
 }
 
+func (r *TypeRepository) FindTypeByModel(c *gin.Context, model string) (*models.Type, error) {
+	var typ models.Type
+	ctx := c.Request.Context()
+	query := `SELECT * FROM "type" WHERE modelo = $1;`
+
+	row := r.db.DB.QueryRowContext(ctx, query, model)
+
+	err := row.Scan(
+		&typ.ID,
+		&typ.Marca,
+		&typ.Modelo,
+		&typ.RequerMAC,
+		&typ.PonMask,
+		&typ.Ativo,
+		&typ.Minimo,
+		&typ.UnidadeMedida)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("tipo de equipamento com modelo %s não encontrado", model)
+		}
+		return nil, fmt.Errorf("falha ao buscar typo de equipamento por modelo: %w", err)
+	}
+
+	return &typ, nil
+}
+
 //	POST
 func (r *TypeRepository) InsertNewType(c *gin.Context, typ *models.Type) error {
 	query := `INSERT INTO "type" (marca, modelo, requer_mac, pon_mask, minimo, unidade_medida) VALUES ($1, $2, $3, $4, $5, $6)`
