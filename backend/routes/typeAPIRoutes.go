@@ -8,4 +8,5 @@ import (
 
 func SetTypesAPIPath(h *handlers.TypeHandler, rg *gin.RouterGroup) {
 	rg.GET("/type", h.ShowAllTypesHandler)
+	rg.POST("/type", h.CreatTypeHandler)
 } 

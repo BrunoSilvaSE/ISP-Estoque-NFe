@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"backend/models"
 	"backend/services"
 	"fmt"
 	"log"
@@ -29,4 +30,27 @@ func (h *TypeHandler) ShowAllTypesHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, typ)
+}
+
+// POST
+func (h *TypeHandler) CreatTypeHandler(c *gin.Context){
+	var typ models.Type
+
+	if err := c.ShouldBindJSON(&typ); err != nil {
+		err = fmt.Errorf("erro ao fazer bind do JSON: %w", err)
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"erro": err})
+		return
+	}
+
+	if err := h.typeService.NewTypeRegister(c, &typ); err != nil {
+		err = fmt.Errorf("erro ao cadastrar novo tipo de equipamento.\n%w", err)
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"erro": err})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"mensagem": "Novo tipo de equipamento criado com sucesso",
+	})
 }
