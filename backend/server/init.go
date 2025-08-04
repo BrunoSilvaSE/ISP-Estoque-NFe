@@ -11,11 +11,11 @@ import (
 )
 
 
-func Init() (*sql.DB, error) {
+func Init() (*sql.DB, *Dependencies, error) {
 	// Inicia as variáveis de ambiente
 	if err := config.InitEnv(); err != nil {
 		log.Fatal("❌ Erro ao carregar as variáveis de ambiente:", err)
-		return nil,  err
+		return nil, nil, err
 	}
 
 	// Executa as migrations
@@ -24,7 +24,7 @@ func Init() (*sql.DB, error) {
 	// o os.args = {"main.go", "migrate"}
 	if len(os.Args) > 1 && os.Args[1] == "migrate" {
 		if err := database.RunMigrations(); err != nil {
-			return nil,  err
+			return nil, nil, err
 		}
 		log.Println("✅ Migration Executada com Sucesso.")
 		os.Exit(0)
@@ -34,12 +34,12 @@ func Init() (*sql.DB, error) {
 	db, err := database.ConnectDB()
 	if err != nil {
 		log.Fatal("❌ Erro ao conectar no banco de dados:", err)
-		return nil,  err
+		return nil, nil, err
 	}
 
 	// Carrega as depêndencias
-	//deps := BuildDependencies(db)
+	deps := BuildDependencies(db)
 
-	return db, nil
+	return db, deps, nil
 
 }

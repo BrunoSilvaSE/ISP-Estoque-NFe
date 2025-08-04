@@ -23,7 +23,7 @@ func NewUserRepository(db *database.DatabaseCliente) *UserRepository {
 func (r *UserRepository) FindAllUsers(c *gin.Context) (*[]models.User, error) {
 	var users []models.User
 	ctx := c.Request.Context()
-	query := "SELECT * FROM User ORDER BY nome;"
+	query := `SELECT * FROM "user" ORDER BY nome;`
 
 	rows, err := r.db.DB.QueryContext(ctx, query)
 	if err != nil {
@@ -38,7 +38,9 @@ func (r *UserRepository) FindAllUsers(c *gin.Context) (*[]models.User, error) {
 			&u.Nome,
 			&u.CPF,
 			&u.SenhaHash,
-			&u.Role);
+			&u.Role,
+			&u.Ativo,
+			&u.CreatedAt);
 			err != nil {return nil, fmt.Errorf("erro na row scan: %w", err)}
 		users = append(users, u)
 	}
@@ -50,20 +52,18 @@ func (r *UserRepository) FindUserByCPF(c *gin.Context, cpf string) (*models.User
 	var user models.User
 	var equipamentos []models.Equipamento
 	ctx := c.Request.Context()
-	query := "SELECT * FROM User WHERE cpf = $1;"
+	query := `SELECT * FROM "user" WHERE cpf = $1;`
 
-	row, err := r.db.DB.QueryContext(ctx, query, cpf)
-	if err != nil {
-		return nil, fmt.Errorf("erro na query context: %w", err)
-	}
-	defer row.Close()
+	row := r.db.DB.QueryRowContext(ctx, query, cpf)
 
-	err = row.Scan(
+	err := row.Scan(
 		&user.ID,
 		&user.Nome,
 		&user.CPF,
 		&user.SenhaHash,
-		&user.Role)
+		&user.Role,
+		&user.Ativo,
+		&user.CreatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -108,7 +108,7 @@ func (r *UserRepository) FindUserByCPF(c *gin.Context, cpf string) (*models.User
 
 // POST
 func (r *UserRepository) InsertUser(c *gin.Context, user *models.User) error {
-	query := `INSERT INTO User (id, nome, cpf, senha_hash, role) VALUES ($1, $2, $3, $4, $5)`
+	query := `INSERT INTO "user" (id, nome, cpf, senha_hash, role) VALUES ($1, $2, $3, $4, $5)`
 	ctx := c.Request.Context()
 
 	res, err := r.db.DB.ExecContext(ctx, query, user.ID, user.Nome, user.CPF, user.SenhaHash, user.Role)
@@ -127,7 +127,7 @@ func (r *UserRepository) InsertUser(c *gin.Context, user *models.User) error {
 
 // PUT
 func (r *UserRepository) UserStatusAlterByID(c *gin.Context, newStatus bool, id int) error {
-	query := `UPDATE "User" SET ativo = $1 WHERE id = $2`
+	query := `UPDATE "user" SET ativo = $1 WHERE id = $2`
 	ctx := c.Request.Context()
 
 	res, err := r.db.DB.ExecContext(ctx, query, newStatus, id)
@@ -148,7 +148,7 @@ func (r *UserRepository) UserStatusAlterByID(c *gin.Context, newStatus bool, id 
 
 func (r *UserRepository) UserModifyByID(c *gin.Context, newUser *models.User) error {
 	query := `
-        UPDATE "User"
+        UPDATE "user"
         SET nome = $1, cpf = $2, senha_hash = $3, role = $4
         WHERE id = $5`
 	ctx := c.Request.Context()

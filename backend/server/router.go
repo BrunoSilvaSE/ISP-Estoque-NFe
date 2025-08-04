@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(deps *Dependencies) *gin.Engine {
 	r := gin.Default()
 
 	r.Static("/assets", "../frontend/public/assets")
@@ -23,14 +23,10 @@ func SetupRouter() *gin.Engine {
 	rg := r.Group("/admin")
 	routes.RegisterAdminPages(rg)
 
-	//rg = r.Group("/main")
-	//routes.RegisterUserPages(rg)
-
-	//rg = r.Group("/paciente")
-	//routes.RegisterPatientPages(rg)
-
-	//rg = r.Group("/api")
+	rg = r.Group("/api")
 	//rg.Use(authMiddleware)
+	routes.SetUserAPIPaths(deps.UserHandler, rg)
+	routes.SetTypesAPIPath(deps.TypeHandler, rg)
 
 
 	r.NoRoute(func(c *gin.Context) { c.File("../frontend/public/pages/ERRORS/404.html") })
